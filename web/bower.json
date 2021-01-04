@@ -1,0 +1,18 @@
+{
+  "name": "web",
+  "authors": [
+    "zhuchenxiao <1196717620@qq.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "index.html",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

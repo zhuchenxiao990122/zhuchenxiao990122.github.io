@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>个人信息</title>
+    <link rel="stylesheet" href="styles/css/index.css">
+    <link rel="stylesheet" href="styles/iconfont/iconfont.css">
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+<div class="person_main">
+    <!-- 基本信息 -->
+    <div class="info-wrapper" id="p1">
+        <ul style="list-style: none;">
+            <li>
+                <span style="float: left"><a style="color:black;text-decoration:none;" href="main.html"><i class="iconfont icon-fanhui"></i></a></span>
+            </li>
+        </ul>
+        <br>
+        <h2 class="new-title">基本信息</h2>
+        <ul class="new-list basic-info" id="mainUl">
+        </ul>
+    <ul style="list-style: none;">
+        <li>
+             <span style="float: right"><i onclick="addBtn()" class="iconfont icon-tianjia"></i></span>
+        </li>
+    </ul>
+    </div>
+</div>
+</body>
+    <script>
+    function addBtn() {
+        var type = prompt('请输入信息类别');//'aa' '' null
+        var res =prompt('请输入信息');
+        if(type&&res){
+            var oLi = document.createElement('li');
+            oLi.innerHTML = '<span class="que">'+type+'</span>\n' +
+                '                <span class="ans">'+res+'</span>\n' +
+                '                <span class="1" style="float: right"><i class="iconfont icon-xiugai"></i>&nbsp; &nbsp; <i  class="iconfont icon-shanchu"></i></span>';
+            document.getElementById("mainUl").appendChild(oLi);
+            var arr1  =
+                {
+                    "type" : type,
+                    "value" : res
+                }
+                var json;
+                json=$.parseJSON(localStorage.getItem("bigdata"));
+                json[type]=arr1;
+            localStorage.setItem("bigdata",JSON.stringify(json));
+        }
+    };
+    document.getElementById("mainUl").onclick = function (event) {//event事件对象
+        event = event || window.event;//处理ie下兼容性
+        var target = event.target||event.srcElement; //事件源
+        var tar =$(target);
+        var a="iconfont icon-xiugai";
+        var b="iconfont icon-shanchu";
+        var type =tar.parent().parent().children("span").eq(0).text();
+        if(tar.attr("class") == a){
+            var res = prompt('请输入修改的内容');
+            if(res){
+                var oLi = document.createElement('li');
+                oLi.innerHTML = '<span class="que">'+type+'</span>\n' +
+                    '                <span class="ans">'+res+'</span>\n' +
+                    '                <span style="float: right"><i class="iconfont icon-xiugai"></i>&nbsp; &nbsp; <i  class="iconfont icon-shanchu"></i></span>';
+                document.getElementById("mainUl").replaceChild(oLi,target.parentNode.parentNode);
+                var arr1  =
+                    {
+                        "type" : type,
+                        "value" : res
+                    }
+                var json;
+                json=$.parseJSON(localStorage.getItem("bigdata"));
+                json[type]=arr1;
+                localStorage.setItem("bigdata",JSON.stringify(json));
+            }
+        }
+        if(tar.attr("class") == b){
+            if(confirm('确定要删除该项吗？')){
+                document.getElementById("mainUl").removeChild(target.parentNode.parentNode);
+                var json;
+                json=$.parseJSON(localStorage.getItem("bigdata"));
+                delete json[type];
+                localStorage.setItem("bigdata",JSON.stringify(json));
+            }
+        }
+    }
+    var bigdata;
+    var i=0;
+    //数据放入storage
+    function fresh1(){
+        if(localStorage.getItem("bigdata")!=null){
+            bigdata = $.parseJSON(localStorage.getItem("bigdata"));
+        }
+        else if(localStorage.getItem("bigdata")==null){
+            $.ajax({
+                url: "./json/person.json",//json文件位置，文件名
+                type: "GET",//请求方式为get
+                dataType: "json", //返回数据格式为json
+                async: false,
+                success: function (data) {
+                    localStorage.setItem("bigdata",JSON.stringify(data));
+                    bigdata = localStorage.getItem("bigdata").parseJSON;//请求成功完成后要执行的方法'
+                }
+            });
+        }
+    }
+    //动态生成前端界面
+    function fresh2() {
+        for (var c in bigdata) {
+            var oLi = document.createElement('li');
+            var type=bigdata[c].type;
+            var res=bigdata[c].value;
+            oLi.innerHTML = '<span class="que">'+type+'</span>\n' +
+                '                <span class="ans">'+res+'</span>\n'+
+                '                <span class="1" style="float: right"><i class="iconfont icon-xiugai"></i>&nbsp; &nbsp; <i  class="iconfont icon-shanchu"></i></span>';
+            document.getElementById("mainUl").appendChild(oLi);
+        }
+    }
+    window.onload=function () {
+        fresh1();
+        fresh2();
+    }
+    </script>
+</html>

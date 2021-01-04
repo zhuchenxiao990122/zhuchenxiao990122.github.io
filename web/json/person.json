@@ -1,0 +1,6 @@
+{
+  "sex":{"type":"性别","value":"男"},
+  "birthday":{"type":"出生日期","value":"1999.01.22"},
+  "phone":{"type":"手机号","value":"17364520984"},
+  "e-mail":{"type":"e-mail","value":"1196717620@qq.com"}
+}

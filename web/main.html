@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="个人简介" content="width=device-width, initial-scale=1.0">
+    <title>zcx's homepage</title>
+    <link rel="stylesheet" href="./styles/css/reset.css">
+    <link rel="stylesheet" href="./styles/css/base.css">
+    <link rel="stylesheet" href="styles/css/index.css">
+    <link rel="stylesheet" href="./styles/iconfont/iconfont.css">
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        //数据
+        var bigdata;
+        var i=0;
+        //数据放入storage
+        function fresh1(){
+            if(localStorage.getItem("bigdata")!=null){
+              bigdata = $.parseJSON(localStorage.getItem("bigdata"));
+            }
+            else if(localStorage.getItem("bigdata")==null){
+                $.ajax({
+                url: "./json/person.json",//json文件位置，文件名
+                type: "GET",//请求方式为get
+                dataType: "json", //返回数据格式为json
+                async: false,
+                   success: function (data) {
+                    localStorage.setItem("bigdata",JSON.stringify(data));
+                    bigdata = $.parseJSON(localStorage.getItem("bigdata"));
+                    //请求成功完成后要执行的方法'
+                   }
+                });
+            }
+        }
+        //动态生成前端界面
+        function fresh2() {
+            for (var c in bigdata) {
+                var oLi = document.createElement('li');
+                var type=bigdata[c].type;
+                var res=bigdata[c].value;
+                oLi.innerHTML = '<span class="que">'+type+'</span>\n' +
+                    '                <span class="ans">'+res+'</span>\n';
+                document.getElementById("mainUl").appendChild(oLi);
+            }
+            var oLi2=document.createElement('li');
+            oLi2.innerHTML='<a href="person.html"><span style="float: right"><i class="iconfont icon-Forward_2">更多信息</i></span></a>';
+            document.getElementById("mainUl").appendChild(oLi2);
+        }
+        function fresh3() {
+            var oLi = document.createElement('li');
+            var type=localStorage.getItem('text');
+            oLi.innerHTML =type;
+            document.getElementById("diary").appendChild(oLi);
+        }
+        window.onload = function () {
+            document.execCommand('Refresh');
+            var end = document.getElementsByClassName("end")[0];
+            var PageY = getComputedStyle(end, null).height;
+            var PageX = window.screen.width;
+            var aSnow = [];
+            setInterval(createSnow, 500);
+            setInterval(moveSnow, 10);
+            fresh1();
+            fresh2();
+            fresh3();
+            function snow(x, y, xspeed, yspeed, xsin, size) {
+                this.node = document.createElement('div');
+                this.x = x;
+                this.y = y;
+                this.xspeed = xspeed;
+                this.yspeed = yspeed;
+                this.size = size;
+                this.createSnow = function () {
+                    this.node.style.position = 'absolute';
+                    this.node.style.top = this.y + 'px';
+                    this.node.style.left = this.x + 'px';
+                    this.node.innerHTML = '*';
+                    this.node.style.color = "skyblue";
+                    document.body.appendChild(this.node);
+                };
+                this.createSnow();
+                this.snowMove = function () {
+                    //垂直方向移动
+                    this.node.style.top = parseInt(this.node.style.top) + this.yspeed + 'px';
+                    //水平方向
+                    this.node.style.left = parseInt(this.node.style.left) + this.xsin * Math.sin(this
+                        .xspeed) + "px";
+                    this.node.style.fontSize = this.size + 'px';
+                };
+            }
+
+            function createSnow() {
+                aSnow.push(new snow(Math.random() * PageX, -50, 0.02 + Math.random() / 10, 1 + Math.random(),
+                    Math.random() * 30, 20 + Math.random() * 30));
+            }
+
+            function moveSnow() {
+                var j;
+                for (j = 0; j < aSnow.length; j++) {
+                    aSnow[j].snowMove();
+                    if (parseInt(aSnow[j].node.style.top) > PageY || parseInt(aSnow[j].node.style.left) >
+                        PageX) {
+                        aSnow[j].node.parentNode.removeChild(aSnow[j].node);
+                        aSnow.splice(j, 1);
+                    }
+                }
+            }
+
+            // 设置顶部导航栏position:fixed后能随网页左右拖动
+            window.onscroll = function () {
+                var sl = -Math.max(document.body.scrollLeft, document.documentElement.scrollLeft);
+                document.getElementById('top').style.left = sl + 'px';
+            };
+
+            // 设置鼠标上的红圈
+            var box1 = document.getElementById("box1");
+            document.onmousemove = function (event) {
+                var st = document.body.scrollTop || document.documentElement.scrollTop;
+                var sl = document.body.scrollLeft || document.documentElement.scrollLeft;
+
+                var left = event.clientX;
+                var top = event.clientY;
+
+                var width = getComputedStyle(box1, null).width;
+                var height = getComputedStyle(box1, null).height;
+
+                box1.style.left = left + sl - parseInt(width) / 2 + "px";
+                box1.style.top = top + st - parseInt(height) / 2 + "px";
+            };
+
+            document.onmousedown = function () {
+                box1.style.backgroundColor = "rgba(255, 32, 32, 0.8)";
+            }
+
+            document.onmouseup = function () {
+                box1.style.backgroundColor = "rgba(255, 32, 32, 0.5)";
+            }
+
+            // ########################################################
+
+            var imgList = document.getElementById("imgList");
+            var imgArr = imgList.getElementsByTagName("img");
+            imgList.style.width = 720 * imgArr.length + "px";
+
+            /*设置导航按钮居中*/
+            var navDiv = document.getElementById("navDiv");
+            var outer = document.getElementById("gf");
+            navDiv.style.left = (outer.offsetWidth - navDiv.offsetWidth) / 2 + "px";
+
+            //默认显示图片的索引
+            var index = 0;
+            var allA = outer.getElementsByTagName("a");
+            //设置默认选中的效果
+            allA[index].style.backgroundColor = "black";
+            //为所有的超链接都绑定单击响应函数
+            for (var i = 0; i < allA.length; i++) {
+                allA[i].num = i;
+                allA[i].onclick = function () {
+                    clearInterval(timer);
+                    index = this.num;
+                    setA();
+                    move(imgList, "left", -720 * index, 20, function () {
+                        autoChange();
+                    });
+                };
+            }
+
+            //开启自动切换图片
+            autoChange();
+
+            //创建一个方法用来设置选中的a
+            function setA() {
+                if (index >= imgArr.length - 1) {
+                    index = 0;
+                    imgList.style.left = 0;
+                }
+                for (var i = 0; i < allA.length; i++) {
+                    allA[i].style.backgroundColor = "";
+                }
+                allA[index].style.backgroundColor = "black";
+            };
+
+            var timer;
+            //创建一个函数，用来开启自动切换图片
+            function autoChange() {
+                timer = setInterval(function () {
+                    index++;
+                    index %= imgArr.length;
+                    move(imgList, "left", -720 * index, 20, function () {
+                        setA();
+                    });
+                }, 3000);
+            }
+
+            /*
+             * 参数：
+             * 	obj:要执行动画的对象
+             * 	attr:要执行动画的样式，比如：left top width height
+             * 	target:执行动画的目标位置
+             * 	speed:移动的速度(正数向右移动，负数向左移动)
+             *  callback:回调函数，这个函数将会在动画执行完毕以后执行
+             */
+            function move(obj, attr, target, speed, callback) {
+                //关闭上一个定时器
+                clearInterval(obj.timer);
+
+                //获取元素目前的位置
+                var current = parseInt(getComputedStyle(obj)[attr]);
+                //判断速度的正负值
+                if (current > target) {
+                    //此时速度应为负值
+                    speed = -speed;
+                }
+                //开启一个定时器，用来执行动画效果
+                //向执行动画的对象中添加一个timer属性，用来保存它自己的定时器的标识
+                obj.timer = setInterval(function () {
+                    //获取box1的原来的left值
+                    var oldValue = parseInt(getComputedStyle(obj)[attr]);
+                    //在旧值的基础上增加
+                    var newValue = oldValue + speed;
+                    //判断newValue是否大于800
+                    //向左移动时，需要判断newValue是否小于target
+                    //向右移动时，需要判断newValue是否大于target
+                    if ((speed < 0 && newValue < target) || (speed > 0 && newValue > target)) {
+                        newValue = target;
+                    }
+                    obj.style[attr] = newValue + "px";
+                    //当元素移动到0px时，使其停止执行动画
+                    if (newValue == target) {
+                        //达到目标，关闭定时器
+                        clearInterval(obj.timer);
+                        //动画执行完毕，调用回调函数
+                        callback && callback();
+                    }
+                }, 30);
+            }
+        };
+    </script>
+</head>
+
+<body>
+
+    <!-- 鼠标移动 -->
+    <div id="box1"></div>
+
+    <!-- 顶部导航条 -->
+    <!-- 顶部导航条外部容器 -->
+    <div class="topbar-wrapper" id="top">
+        <!-- 创建内部容器 -->
+        <div class="topbar clearfix w">
+            <!-- 左侧的导航 -->
+            <ul class="service">
+                <li><a href="#p1">基本信息</a></li>
+                <li class="line">|</li>
+                <li><a href="#p2">职业技能</a></li>
+                <li class="line">|</li>
+                <li><a href="#p3">教育经历</a></li>
+                <li class="line">|</li>
+                <li><a href="#p4">图片分享</a></li>
+                <li class="line">|</li>
+                <li><a href="#p5">富文本编辑器</a></li>
+            </ul>
+
+            <!-- 社交账户栏 -->
+            <ul class="social-web">
+                <li><a href="https://github.com/zhuchenxiao990122" title="github">
+                        <i class="fa fa-github"></i>
+                        github
+                    </a></li>
+                <li class="line">|</li>
+                <li class="app-wrapper">
+                    <a class="app" href="javascript:;" title="扫码加我的微信">
+                        <i class="fa fa-weixin" aria-hidden="true"></i>
+                        微信
+                        <!-- 添加一个弹出层 -->
+                        <div class="qrcode">
+                            <img src="./img/微信.png">
+                        </div>
+                    </a>
+                </li>
+            </ul>
+
+
+        </div>
+    </div>
+    <div class="w">
+        <!-- 回到顶部 -->
+        <div class="back-top">
+            <a href="#" title="回到顶部">
+                <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        <!-- 左侧浮动窗 -->
+        <div class="float">
+            <div class="img-wrapper">
+                <img src="./img/patient.png" alt="">
+            </div>
+            <div class="name">
+                朱晨晓
+            </div>
+            <p>
+                杭州电子科技大学 | 本科生
+            </p>
+            <div class="over"></div>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="basic-wrapper w">
+            <!-- 基本信息 -->
+            <div class="info-wrapper" id="p1">
+                <h2 id="" class="new-title">基本信息</h2>
+                <ul class="new-list basic-info" id="mainUl">
+
+                </ul>
+            </div>
+
+            <!-- 职业技能 -->
+            <div class="info-wrapper" id="p2">
+                <h2 class=>职业技能</h2>
+                <div class="inner-wrapper">
+                    <div class="skill">
+                        <strong class="progress-title">Java</strong>
+                        <span class="progress-bar">
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                        </span>
+                    </div>
+
+                    <div class="skill">
+                        <strong class="progress-title">Python</strong>
+                        <span class="progress-bar">
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                        </span>
+                    </div>
+
+                    <div class="skill">
+                        <strong class="progress-title">C++</strong>
+                        <span class="progress-bar">
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                        </span>
+                    </div>
+
+                    <div class="skill">
+                        <strong class="progress-title">HTML & CSS & JavaScript</strong>
+                        <span class="progress-bar">
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bulletfill"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                            <span class="bullet"></span>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 教育经历 -->
+            <div class="info-wrapper" id="p3">
+                <h2 class="new-title">教育经历</h2>
+                <div class="edu-wrapper">
+                    <div class="pic-wrapper">
+                        <img src="./img/校徽.png" height="120" alt="杭州电子科技大学校徽">
+                        <div class="school">
+                            <a href="http://www.hust.edu.cn/" target="_blank"> <strong>杭州电子科技大学</strong></a>
+                            <span>2017 - 2021 | 软件工程</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- kawai npy -->
+            <div class="info-wrapper" id="p4">
+                <h2>图片分享</h2>
+                <div class="gf-wrapper" id="gf">
+                    <!-- 存放图片 -->
+                    <ul id="imgList">
+                        <li><img src="./img/1.png" /></li>
+                        <li><img src="./img/2.png" /></li>
+                        <li><img src="./img/3.png" /></li>
+                        <li><img src="./img/4.png" /></li>
+                        <li><img src="./img/5.png" /></li>
+                        <li><img src="./img/1.png" /></li>
+                    </ul>
+                    <!--创建导航按钮-->
+                    <div id="navDiv">
+                        <a href="javascript:;"></a>
+                        <a href="javascript:;"></a>
+                        <a href="javascript:;"></a>
+                        <a href="javascript:;"></a>
+                        <a href="javascript:;"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="info-wrapper" id="p5">
+                <h2>富文本编辑器</h2>
+                <div class="info-wrapper" id="gf2">
+                    <ul id="diary">
+                          <li><a href="input.html"><span style="float: right"><i class="iconfont icon-Forward_2">富文本编辑器</i></span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="end"></div>
+</body>
+
+<footer class="w">
+    <div>
+    </div>
+</footer>
+
+</html>
